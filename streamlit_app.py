@@ -2,21 +2,36 @@ import streamlit as st
 import pandas as pd
 from joblib import load
 import matplotlib.pyplot as plt
+import zipfile
+import os
 
 st.set_page_config(page_title="Heart Disease Predictor", page_icon="❤️")
 st.title("❤️‍🩹 Heart Disease Prediction")
 
 # ---------- Load model directly (cached) ----------
-@st.cache_resource
-def load_model():
-    return load("best_rf_model.joblib")
+# Path to the zip file
+zip_path = 'best_rf_model.zip'
+unzip_dir = 'model/'  # Directory where the unzipped model will be stored
 
+# Unzip the model file if it does not exist already
+if not os.path.exists(unzip_dir):
+    os.makedirs(unzip_dir)
+
+if not os.path.exists(os.path.join(unzip_dir, 'best_rf_model.joblib')):
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(unzip_dir)
+    except Exception as e:
+        st.error(f"Error extracting model: {e}")
+        st.stop()
+
+# Load the model from the unzipped folder
 try:
-    model = load_model()
+    model = load(os.path.join(unzip_dir, 'best_rf_model.joblib'))
 except FileNotFoundError:
-    st.error("Could not find best_rf_model.joblib in the app folder.")
+    st.error("Could not find best_rf_model.joblib after extraction.")
     st.stop()
-
+    
 # ---------- What the model expects ----------
 expected = list(getattr(model, "feature_names_in_", []))
 if not expected:
