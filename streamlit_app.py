@@ -60,7 +60,7 @@ with st.form("predict_form"):
     with col2:
         bmi = st.number_input("BMI", min_value=10.0, max_value=60.0, value=22.0)
         cholesterol_level = st.number_input("Total Cholesterol (mg/dL)", min_value=0.0, max_value=450.0, value=190.0)
-        fasting_bs = st.selectbox("Fasting Blood Sugar", ["Normal", "High"])
+        fasting_bs = st.number_input("Fasting Blood Sugar",min_value=0.0, max_value=1000.0, value=140.0)
         high_bp = st.selectbox("High Blood Pressure (diagnosed)", ["No", "Yes"])
         diabetes = st.selectbox("Diabetes", ["No","Yes"])
         triglyceride = st.number_input("Triglyceride (mg/dL)", min_value=0.0, max_value=1000.0, value=150.0)
