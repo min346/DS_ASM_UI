@@ -54,7 +54,7 @@ with st.form("predict_form"):
         sleep_hours = st.number_input("Sleep Hours", min_value=0.0, max_value=24.0, value=7.0)
         stress_level = st.selectbox("Stress Level (Low/Medium/High)", ["Low","Medium","High"])
         smoking = st.selectbox("Smoking", ["No", "Yes"])
-        alcohol = st.selectbox("Alcohol Consumption", ["No","Yes"])
+        alcohol = st.selectbox("Alcohol Consumption", ["Low","Medium","High"])
         family_hd = st.selectbox("Family Heart Disease", ["No","Yes"])
 
     with col2:
