@@ -99,8 +99,7 @@ if submitted:
 
     with st.expander("See the exact feature vector sent to the model"):
         st.write(input_df)
-le = LabelEncoder()
-y = le.fit_transform(y_raw)
+        
     # Predict once
     pred = model.predict(input_df)[0]
     proba = model.predict_proba(input_df)[0, 1]
@@ -165,3 +164,4 @@ y = le.fit_transform(y_raw)
             range_bar("Total Cholesterol (mg/dL)", 0.0, 200.0, float(cholesterol_level), 0, 300)
 
             st.write(f"Fasting Blood Sugar status: **{fasting_bs}**")
+
