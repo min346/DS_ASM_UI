@@ -83,7 +83,7 @@ if submitted:
     # Map to model features
     label_map = {"Low": 0, "Medium": 1, "High": 2}
     row = {
-        "Fasting Blood Sugar": 1 if fasting_bs == "High" else 0,
+        "Fasting Blood Sugar": float(fasting_bs),
         "BMI": float(bmi),
         "Cholesterol Level": float(cholesterol_level),
         "Sleep Hours": float(sleep_hours),
@@ -100,14 +100,37 @@ if submitted:
     with st.expander("See the exact feature vector sent to the model"):
         st.write(input_df)
         
-    # Predict once
-    pred = model.predict(input_df)[0]
-    proba = model.predict_proba(input_df)[0, 1]
+    # Predict with custom threshold
+    classes = [0, 1]  # we know the model uses 0 = No, 1 = Has
+    pos_idx = classes.index(1)
+
+    proba = float(model.predict_proba(input_df)[0, pos_idx])
+    threshold = 0.25   # <-- custom threshold
+
+    pred = 1 if proba >= threshold else 0  # apply threshold manually
 
     # One result container (prevents duplicates)
     result_box = st.container()
     with result_box:
-        st.success(f"Prediction: {'HAS Heart Disease' if pred == 1 else 'NO Heart Disease'}")
+        if pred == 1:  # HAS Heart Disease
+            st.markdown(
+                f"""
+                <div style="padding:15px; border-radius:10px; background-color:#ffcccc; color:#b30000; font-weight:bold; font-size:18px;">
+                    ❤️ Prediction: HAS Heart Disease
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:  # NO Heart Disease
+            st.markdown(
+                f"""
+                <div style="padding:15px; border-radius:10px; background-color:#ccffcc; color:#006600; font-weight:bold; font-size:18px;">
+                    ✅ Prediction: NO Heart Disease
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
         st.subheader("Probability")
         st.metric("Probability (of Heart Disease)", f"{proba:.3f}")
 
@@ -116,10 +139,12 @@ if submitted:
 
             fig_prob, ax_prob = plt.subplots(figsize=(6, 0.6))
             ax_prob.barh([0], [proba], height=0.4, color="tomato")
-            ax_prob.set_xlim(0, 1)
+            ax_prob.set_xlim(0, 0.5)
             ax_prob.set_yticks([])
-            ax_prob.set_xlabel("0 = Low   ————————   1 = High")
-            ax_prob.set_title("Risk Probability")
+            ax_prob.axvline(x=0.25, color="red", linestyle="--", linewidth=2, label="Threshold (0.25)")
+            ax_prob.set_xlabel("0 = Low   ————————   0.5 = High")
+            ax_prob.set_title("Risk Probability (cutoff = 0.25)")
+            ax_prob.legend(loc="upper right")
             for spine in ["top", "right", "left"]:
                 ax_prob.spines[spine].set_visible(False)
 
