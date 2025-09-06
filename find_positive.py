@@ -18,7 +18,7 @@ if not os.path.exists(model_path):
 model = load(model_path)
 
 # ---------------- Config ----------------
-THRESHOLD = 0.25   # change to 0.30 if you want to be more sensitive
+THRESHOLD = 0.5   # change to 0.25 if you want to be more sensitive
 classes = list(getattr(model, "classes_", []))
 print("Model classes_:", classes)
 
@@ -36,9 +36,9 @@ print(f"[INFO] Using positive class: {pos_label} (proba column {pos_idx})")
 print(f"[INFO] Decision threshold: {THRESHOLD:.2f}")
 
 # ---------------- Helpers ----------------
-def make_row(age, bmi, chol, sleep, stress, sugar, exer, male, smoke_yes, hbp_yes, fbs_high):
+def make_row(age, bmi, chol, sleep, stress, sugar, exer, male, smoke_yes, hbp_yes, fbs_value):
     return {
-        "Fasting Blood Sugar": 1 if fbs_high else 0,
+        "Fasting Blood Sugar":float(fbs_value),
         "BMI": float(bmi),
         "Cholesterol Level": float(chol),
         "Sleep Hours": float(sleep),
@@ -62,9 +62,10 @@ try:
     sleeps = [3, 5, 7]
     ords = [0, 1, 2]
     bin01 = [0, 1]
+    fbs_vals = [80, 100, 120, 140, 160]
 
     for age, bmi, chol, sleep, stress, sugar, exer, male, smoke, hbp, fbs in itertools.product(
-        ages, bmis, chols, sleeps, ords, ords, ords, bin01, bin01, bin01, bin01
+    ages, bmis, chols, sleeps, ords, ords, ords, bin01, bin01, bin01, fbs_vals
     ):
         row = make_row(age, bmi, chol, sleep, stress, sugar, exer, male, smoke, hbp, fbs)
         proba = float(model.predict_proba(pd.DataFrame([row]))[0, pos_idx])
@@ -90,7 +91,7 @@ try:
                 male=random.randint(0, 1),
                 smoke_yes=random.randint(0, 1),
                 hbp_yes=random.randint(0, 1),
-                fbs_high=random.randint(0, 1),
+                fbs_value = round(random.uniform(70, 200), 1),
             )
             proba = float(model.predict_proba(pd.DataFrame([row]))[0, pos_idx])
             if proba > best["proba"]:
